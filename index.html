@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课堂作品投票 · 课堂 TOP 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ece4d3;
+    --bg-2: #e0d6c0;
+    --bg-3: #d4c8af;
+    --paper: #f3ecdc;
+    --ink: #161821;
+    --ink-2: #2d3142;
+    --ink-mute: #6a6555;
+    --ink-faint: #b3a98e;
+    --pink: #e8526f;
+    --pink-deep: #c23452;
+    --blue: #5ba3d0;
+    --blue-deep: #3b7fab;
+    --yellow: #f5c56c;
+    --green: #4a7a4a;
+
+    --display: 'Anton', 'Archivo Black', 'Noto Sans SC', 'ZCOOL QingKe HuangYou', sans-serif;
+    --heavy: 'Archivo Black', 'Anton', 'Noto Sans SC', sans-serif;
+    --serif-italic: 'Instrument Serif', 'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', serif;
+    --sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Menlo', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { min-height: 100vh; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* === Halftone 网点层（最 signature 的元素）=== */
+  .halftone {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='7' height='7'><circle cx='3.5' cy='3.5' r='1.2' fill='%23161821' fill-opacity='0.18'/></svg>");
+    background-size: 7px 7px;
+    mix-blend-mode: multiply;
+  }
+
+  /* === 纸面颗粒 === */
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.16;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* === 装饰小元素 === */
+  .deco {
+    position: fixed;
+    pointer-events: none;
+    z-index: 2;
+    color: var(--ink);
+    opacity: 0.7;
+  }
+  .deco.cross { font-size: 22px; }
+  .deco.dot { width: 8px; height: 8px; background: var(--ink); border-radius: 50%; }
+  .deco.dots3 {
+    width: 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .deco.dots3 span { width: 5px; height: 5px; background: var(--ink); border-radius: 50%; display: block; }
+  .deco.serif {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-2);
+  }
+
+  /* === 顶部 Header (印刷报头) === */
+  .paper-header {
+    position: relative;
+    z-index: 10;
+    padding: 18px 40px;
+    border-bottom: 3px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 32px;
+    background: var(--bg);
+  }
+  .paper-header::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -7px;
+    height: 1px;
+    background: var(--ink);
+  }
+
+  .brand-stack {
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+  }
+  .brand-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--ink-2);
+    border-right: 1px solid var(--ink);
+    padding-right: 18px;
+    align-self: center;
+    text-transform: uppercase;
+  }
+  .brand-title {
+    font-family: var(--display);
+    font-size: 36px;
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .brand-title .pink { color: var(--pink); }
+  .brand-title .small {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--ink-2);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 6px;
+  }
+
+  .meta-stack {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .rec {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--pink);
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rec-dot {
+    width: 10px; height: 10px;
+    background: var(--pink);
+    border-radius: 50%;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .total-block {
+    text-align: right;
+    border-left: 1px solid var(--ink);
+    padding-left: 24px;
+  }
+  .total-num {
+    font-family: var(--display);
+    font-size: 56px;
+    line-height: 0.9;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    transition: transform 0.3s, color 0.3s;
+  }
+  .total-num.bump { transform: scale(1.15); color: var(--pink); }
+  .total-label {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+
+  /* === Main === */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 40px 60px;
+  }
+
+  /* === 通用工具 === */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 28px; height: 1px;
+    background: var(--ink-mute);
+  }
+
+  .display {
+    font-family: var(--display);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.88;
+  }
+  .pink { color: var(--pink); }
+  .blue { color: var(--blue-deep); }
+  .ink-2 { color: var(--ink-2); }
+
+  .serif-it {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--ink-2);
+  }
+
+  /* === Hero / 等待页 === */
+  .hero {
+    padding: 64px 0 80px;
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 40px;
+    align-items: end;
+    position: relative;
+  }
+  .hero-left { padding-top: 20px; }
+  .hero-display {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .hero-display .line {
+    font-family: var(--display);
+    font-size: clamp(64px, 11vw, 148px);
+    line-height: 0.82;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+  }
+  .hero-display .l1 { color: var(--ink); }
+  .hero-display .l2 { color: var(--pink); padding-left: 0.4em; }
+  .hero-display .l3 { color: var(--ink); padding-left: 0.8em; }
+  .hero-display .l4 { color: var(--blue-deep); padding-left: 1.2em; font-size: 0.6em; }
+
+  .hero-italic {
+    margin-top: 28px;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink-2);
+    line-height: 1.3;
+  }
+  .hero-italic span { display: inline-block; margin-right: 18px; }
+  .hero-italic .pink { color: var(--pink); }
+
+  .hero-cta {
+    margin-top: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    padding: 18px 32px;
+    border: 3px solid var(--ink);
+    font-family: var(--display);
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 4px -4px -4px 4px;
+    border: 1px solid var(--ink);
+    background: var(--pink);
+    z-index: -1;
+    transition: inset 0.2s;
+  }
+  .hero-cta:hover::before { inset: 0; }
+  .hero-cta:hover { transform: translate(-2px, -2px); }
+
+  /* 右侧：星爆印章 */
+  .stamp {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 340px;
+    margin-left: auto;
+    animation: spin-slow 60s linear infinite;
+  }
+  .stamp svg { width: 100%; height: 100%; display: block; }
+  .stamp-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .stamp-text {
+    font-family: var(--display);
+    font-size: 88px;
+    line-height: 0.85;
+    color: var(--paper);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+  .stamp-sub {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--paper);
+    margin-top: 4px;
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .stamp-center { animation: spin-counter 60s linear infinite; }
+  @keyframes spin-counter { to { transform: rotate(-360deg); } }
+
+  /* 等待页底部分隔 */
+  .hero-bottom {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 3px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    color: var(--ink-2);
+    font-size: 18px;
+  }
+  .hero-bottom b {
+    font-family: var(--display);
+    font-style: normal;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+
+  /* === Section 标题 === */
+  .section { margin: 64px 0; }
+  .section-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 24px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--ink);
+    position: relative;
+  }
+  .section-head::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -4px;
+    height: 1px;
+    background: var(--ink);
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(48px, 7vw, 92px);
+    line-height: 0.88;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+  }
+  .section-title .pink { color: var(--pink); }
+  .section-title .blue { color: var(--blue-deep); }
+  .section-title .italic {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 0.42em;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-2);
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.3em;
+  }
+  .section-meta {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-2);
+    text-align: right;
+  }
+  .section-meta b {
+    font-family: var(--display);
+    font-style: normal;
+    font-size: 32px;
+    color: var(--pink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* === 领奖台 === */
+  .podium {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 16px;
+    align-items: end;
+  }
+  .podium-card {
+    position: relative;
+    border: 2px solid var(--ink);
+    padding: 32px 24px 28px;
+    text-align: center;
+    overflow: hidden;
+    background: var(--paper);
+    animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .podium-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='6' height='6'><circle cx='3' cy='3' r='1' fill='%23161821' fill-opacity='0.12'/></svg>");
+    background-size: 6px 6px;
+    pointer-events: none;
+  }
+  .podium-card.gold {
+    background: var(--pink);
+    color: var(--paper);
+    padding: 48px 24px 36px;
+    animation-delay: 0.18s;
+  }
+  .podium-card.silver {
+    background: var(--blue);
+    color: var(--paper);
+    animation-delay: 0.04s;
+  }
+  .podium-card.bronze {
+    background: var(--yellow);
+    color: var(--ink);
+    animation-delay: 0.1s;
+  }
+  .podium-rank {
+    font-family: var(--display);
+    font-size: 100px;
+    line-height: 0.82;
+    letter-spacing: -0.04em;
+    position: relative;
+  }
+  .podium-ordinal {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    margin-top: 6px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  .podium-name {
+    font-family: var(--display);
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    margin: 16px 0 8px;
+    word-break: break-all;
+    line-height: 1;
+    position: relative;
+  }
+  .podium-card.gold .podium-name { font-size: 32px; }
+  .podium-votes {
+    font-family: var(--display);
+    font-size: 52px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+  }
+  .podium-card.gold .podium-votes { font-size: 64px; }
+  .podium-votes-label {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 16px;
+    margin-top: 4px;
+    position: relative;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === 排行列表（编辑级排版）=== */
+  .rank-list { display: flex; flex-direction: column; }
+  .rank-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 160px 80px;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--ink);
+    transition: background 0.3s;
+    animation: slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    background: var(--paper);
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .rank-row:nth-child(even) { background: var(--bg-2); }
+  .rank-row.top1 { background: var(--pink); color: var(--paper); border-color: var(--ink); }
+  .rank-row.top2 { background: var(--blue); color: var(--paper); border-color: var(--ink); }
+  .rank-row.top3 { background: var(--yellow); color: var(--ink); border-color: var(--ink); }
+  .rank-row.flash { animation: flash 0.8s ease-out; }
+  @keyframes flash {
+    0% { background: var(--ink); color: var(--paper); }
+    100% { background: var(--paper); }
+  }
+
+  .rank-no {
+    font-family: var(--display);
+    font-size: 44px;
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+    text-align: left;
+  }
+  .rank-row.top1 .rank-no, .rank-row.top2 .rank-no { color: var(--paper); }
+  .rank-row.top3 .rank-no { color: var(--ink); }
+
+  .rank-name {
+    font-family: var(--display);
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    word-break: break-all;
+    line-height: 1.05;
+  }
+  .rank-bar-bg {
+    height: 10px;
+    background: rgba(22, 24, 33, 0.12);
+    border-radius: 0;
+    overflow: hidden;
+    border: 1px solid var(--ink);
+  }
+  .rank-bar-fg {
+    height: 100%;
+    background: var(--ink);
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .rank-row.top1 .rank-bar-fg, .rank-row.top2 .rank-bar-fg { background: var(--paper); }
+  .rank-row.top3 .rank-bar-fg { background: var(--ink); }
+
+  .rank-votes {
+    font-family: var(--display);
+    font-size: 36px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  /* === 投票卡 === */
+  .vote-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .vote-card {
+    position: relative;
+    border: 2px solid var(--ink);
+    padding: 22px 18px 18px;
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .vote-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='6' height='6'><circle cx='3' cy='3' r='1' fill='%23161821' fill-opacity='0.08'/></svg>");
+    background-size: 6px 6px;
+    pointer-events: none;
+  }
+  .vote-card:hover:not(.voted) {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .vote-card.voted {
+    background: var(--ink);
+    color: var(--paper);
+    cursor: default;
+  }
+  .vote-card.voted::after {
+    content: 'VOTED';
+    position: absolute;
+    top: 14px; right: -32px;
+    background: var(--pink);
+    color: var(--paper);
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    padding: 4px 36px;
+    transform: rotate(35deg);
+  }
+  .vote-card-name {
+    font-family: var(--display);
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    word-break: break-all;
+    position: relative;
+  }
+  .vote-card-count {
+    font-family: var(--display);
+    font-size: 56px;
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    position: relative;
+    transition: transform 0.3s;
+  }
+  .vote-card.voted .vote-card-count { color: var(--paper); }
+  .vote-card-count.bump { transform: scale(1.18); color: var(--pink); }
+  .vote-card-count-label {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-mute);
+    position: relative;
+  }
+  .vote-card.voted .vote-card-count-label { color: var(--ink-faint); }
+  .vote-btn {
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 12px 16px;
+    font-family: var(--display);
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    margin-top: auto;
+  }
+  .vote-btn:hover:not(:disabled) {
+    background: var(--pink);
+    border-color: var(--pink);
+  }
+  .vote-btn:disabled {
+    background: var(--bg-2);
+    color: var(--ink-faint);
+    border-color: var(--ink-faint);
+    cursor: not-allowed;
+  }
+
+  /* === Admin === */
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 18px;
+  }
+  .panel {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 24px;
+    position: relative;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='6' height='6'><circle cx='3' cy='3' r='1' fill='%23161821' fill-opacity='0.06'/></svg>");
+    background-size: 6px 6px;
+    pointer-events: none;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+  }
+  .panel-title {
+    font-family: var(--display);
+    font-size: 28px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  .panel-tag {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--pink);
+  }
+  textarea {
+    width: 100%;
+    min-height: 240px;
+    padding: 14px;
+    background: var(--bg);
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    resize: vertical;
+    position: relative;
+  }
+  textarea:focus { outline: none; background: var(--paper); border-color: var(--pink); }
+  .hint {
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-mute);
+    margin-top: 10px;
+    position: relative;
+  }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; position: relative; }
+  .btn {
+    background: var(--paper);
+    color: var(--ink);
+    border: 2px solid var(--ink);
+    padding: 11px 18px;
+    font-family: var(--display);
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+  .btn:active { transform: translate(0, 0); box-shadow: none; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--pink); color: var(--paper); border-color: var(--ink); }
+  .btn-success { background: var(--green); color: var(--paper); border-color: var(--ink); }
+  .btn-warn { background: var(--yellow); color: var(--ink); border-color: var(--ink); }
+  .btn-danger { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 2px solid var(--ink);
+    font-family: var(--display);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .status-pill .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .status-pill.open { background: var(--green); color: var(--paper); }
+  .status-pill.open .dot { background: var(--paper); }
+  .status-pill.closed { background: var(--ink); color: var(--paper); }
+  .status-pill.closed .dot { background: var(--pink); }
+
+  .kv {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ink);
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-2);
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .kv b {
+    font-family: var(--display);
+    font-style: normal;
+    font-size: 28px;
+    color: var(--pink);
+    font-variant-numeric: tabular-nums;
+  }
+  .kv-sep { color: var(--ink-faint); margin: 0 4px; }
+
+  /* === Footer (海报签名) === */
+  .foot {
+    position: relative;
+    z-index: 5;
+    border-top: 3px solid var(--ink);
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--serif-italic);
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-2);
+    background: var(--bg);
+  }
+  .foot .stamp-text {
+    font-family: var(--display);
+    font-style: normal;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--pink);
+  }
+  .foot .dot { color: var(--pink); margin: 0 6px; }
+
+  /* === Toast === */
+  #toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 24px;
+    border: 2px solid var(--pink);
+    font-family: var(--display);
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* === 投票粒子（stamp 风）=== */
+  .burst {
+    position: fixed;
+    width: 12px; height: 12px;
+    pointer-events: none;
+    z-index: 998;
+    border: 2px solid var(--ink);
+    background: var(--pink);
+    transform: rotate(45deg);
+  }
+  .burst::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    transform: inherit;
+    animation: burst-fly 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes burst-fly {
+    0% { transform: rotate(45deg) translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: rotate(45deg) translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+  }
+
+  /* === 入场 === */
+  .stagger > * { animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+  .stagger > *:nth-child(1) { animation-delay: 0.04s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.08s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.12s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.16s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.2s; }
+  .stagger > *:nth-child(6) { animation-delay: 0.24s; }
+  .stagger > *:nth-child(7) { animation-delay: 0.28s; }
+  .stagger > *:nth-child(8) { animation-delay: 0.32s; }
+  .stagger > *:nth-child(9) { animation-delay: 0.36s; }
+  .stagger > *:nth-child(n+10) { animation-delay: 0.4s; }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === 响应式 === */
+  @media (max-width: 820px) {
+    .paper-header { padding: 14px 20px; flex-direction: column; gap: 14px; }
+    .brand-title { font-size: 28px; }
+    .total-num { font-size: 42px; }
+    main { padding: 0 20px 40px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+    .stamp { max-width: 220px; margin: 0 auto; }
+    .hero { padding: 32px 0 48px; }
+    .section { margin: 40px 0; }
+    .section-head { grid-template-columns: 1fr; gap: 8px; }
+    .podium { grid-template-columns: 1fr; gap: 10px; }
+    .podium-card.gold { order: -1; padding: 28px 18px; }
+    .podium-rank { font-size: 72px; }
+    .podium-name { font-size: 22px; }
+    .admin-grid { grid-template-columns: 1fr; }
+    .rank-row { grid-template-columns: 50px 1fr 50px; padding: 14px 12px; gap: 12px; }
+    .rank-row .rank-bar-bg { display: none; }
+    .rank-no { font-size: 32px; }
+    .rank-name { font-size: 20px; }
+    .rank-votes { font-size: 28px; }
+    .vote-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .vote-card { padding: 16px 14px; }
+    .vote-card-count { font-size: 40px; }
+    .vote-card-name { font-size: 18px; }
+    .foot { padding: 16px 20px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+  <div class="halftone"></div>
+  <div class="grain"></div>
+
+  <!-- 散落装饰 -->
+  <div class="deco cross" style="top:120px; left:30px;">✦</div>
+  <div class="deco cross" style="top:120px; right:30px;">✦</div>
+  <div class="deco dots3" style="bottom:140px; left:32px;"><span></span><span></span><span></span></div>
+  <div class="deco dots3" style="bottom:140px; right:32px;"><span></span><span></span><span></span></div>
+  <div class="deco serif" style="top:200px; left:48%; transform:rotate(-3deg);">Don't be so hard on yourself</div>
+
+  <header class="paper-header">
+    <div class="brand-stack">
+      <div class="brand-num">№&nbsp;001</div>
+      <h1 class="brand-title">
+        课堂作品<br>
+        <span class="small">classroom</span> <span class="pink">Vote.</span>
+      </h1>
+    </div>
+    <div class="meta-stack">
+      <div class="rec"><span class="rec-dot"></span>LIVE</div>
+      <div class="total-block">
+        <div class="total-num" id="totalNum">0</div>
+        <div class="total-label">总票数 · total</div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer class="foot">
+    <span>Take your time. <span class="dot">●</span> Sit for a while. <span class="dot">●</span> Sort your feeling.</span>
+    <span class="stamp-text">Don't be so hard on yourself</span>
+  </footer>
+
+  <div id="toast"></div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'classroom-vote-state-v1';
+  const PWD_KEY = 'classroom-vote-pwd';
+  const DEFAULT_PWD = 'dev-password-123';
+  const votedKey = (session) => 'classroom-vote::voted::' + session;
+
+  if (!localStorage.getItem(PWD_KEY)) {
+    localStorage.setItem(PWD_KEY, DEFAULT_PWD);
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return { items: [], votes: {}, status: 'closed', session: '0' };
+  }
+  function saveState(s) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    try { bc && bc.postMessage({ type: 'state' }); } catch {}
+  }
+
+  let state = loadState();
+  let prevTotal = 0;
+
+  const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('classroom-vote') : null;
+  if (bc) {
+    bc.onmessage = () => { state = loadState(); render(); };
+  }
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY) { state = loadState(); render(); }
+  });
+
+  const $ = (sel) => document.querySelector(sel);
+  const params = new URLSearchParams(location.search);
+  const adminPwd = params.get('admin') || '';
+  const isAdmin = !!adminPwd;
+  const correctPwd = localStorage.getItem(PWD_KEY);
+
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function totalVotes() {
+    let t = 0;
+    for (const k in state.votes) t += state.votes[k] || 0;
+    return t;
+  }
+
+  function updateTotal() {
+    const el = $('#totalNum');
+    if (!el) return;
+    const t = totalVotes();
+    if (t !== prevTotal) {
+      el.textContent = t;
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+      prevTotal = t;
+    }
+  }
+
+  // 星爆粒子（菱形）
+  function burstAt(x, y) {
+    const colors = ['#e8526f', '#5ba3d0', '#f5c56c', '#161821', '#e8526f'];
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'burst';
+      p.style.left = (x - 6) + 'px';
+      p.style.top = (y - 6) + 'px';
+      p.style.background = colors[i % colors.length];
+      const angle = (Math.PI * 2 * i) / 12 + (Math.random() * 0.4);
+      const dist = 60 + Math.random() * 70;
+      p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 900);
+    }
+  }
+
+  function getVoted() {
+    try {
+      const raw = localStorage.getItem(votedKey(state.session));
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  }
+  function markVoted(item) {
+    const list = getVoted();
+    if (!list.includes(item)) {
+      list.push(item);
+      localStorage.setItem(votedKey(state.session), JSON.stringify(list));
+    }
+  }
+
+  function rankingHtml() {
+    if (!state.items.length) return '';
+    const rows = state.items
+      .map((name) => ({ name, votes: state.votes[name] || 0 }))
+      .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
+    const max = Math.max(1, ...rows.map(r => r.votes));
+    return '<div class="rank-list">' + rows.map((r, i) => {
+      const cls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      const pct = Math.round((r.votes / max) * 100);
+      return (
+        '<div class="rank-row ' + cls + '" data-name="' + escapeHtml(r.name) + '" style="animation-delay:' + (i * 0.04) + 's">' +
+          '<div class="rank-no">' + String(i + 1).padStart(2, '0') + '</div>' +
+          '<div class="rank-name">' + escapeHtml(r.name) + '</div>' +
+          '<div class="rank-bar-bg"><div class="rank-bar-fg" style="width:' + pct + '%"></div></div>' +
+          '<div class="rank-votes">' + r.votes + '</div>' +
+        '</div>'
+      );
+    }).join('') + '</div>';
+  }
+
+  function podiumHtml() {
+    if (state.items.length < 3) return '';
+    const rows = state.items
+      .map((name) => ({ name, votes: state.votes[name] || 0 }))
+      .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
+    if (rows[0].votes === 0) return '';
+    const p = [rows[1], rows[0], rows[2]];
+    const cls = ['silver', 'gold', 'bronze'];
+    return '<div class="podium">' + p.map((r, i) =>
+      '<div class="podium-card ' + cls[i] + '">' +
+        '<div class="podium-rank">' + (i + (i === 0 ? 2 : i === 1 ? 1 : 3)) + '</div>' +
+        '<div class="podium-ordinal">' + (i === 0 ? '2ND' : i === 1 ? '1ST' : '3RD') + '</div>' +
+        '<div class="podium-name">' + escapeHtml(r.name) + '</div>' +
+        '<div class="podium-votes">' + r.votes + '</div>' +
+        '<div class="podium-votes-label">votes</div>' +
+      '</div>'
+    ).join('') + '</div>';
+  }
+
+  // 等待页
+  function renderWaiting() {
+    return '<section class="hero">' +
+      '<div class="hero-grid">' +
+        '<div class="hero-left">' +
+          '<div class="eyebrow">— 等待老师导入 —</div>' +
+          '<div class="hero-display">' +
+            '<div class="line l1">CLASS</div>' +
+            '<div class="line l2">VOTE.</div>' +
+            '<div class="line l3">TOP<span class="italic">&nbsp;three.</span></div>' +
+            '<div class="line l4">EST. 2026</div>' +
+          '</div>' +
+          '<div class="hero-italic">' +
+            '<span>Take your time.</span>' +
+            '<span class="pink">Sort your feeling.</span>' +
+            '<span>Chill out.</span>' +
+          '</div>' +
+          '<a class="hero-cta" href="?admin=dev-password-123">我是老师 · 进入 →</a>' +
+        '</div>' +
+        '<div>' +
+          '<div class="stamp">' +
+            '<svg viewBox="0 0 200 200">' +
+              '<defs>' +
+                '<pattern id="halftone-stamp" width="4" height="4" patternUnits="userSpaceOnUse">' +
+                  '<circle cx="2" cy="2" r="0.8" fill="%23f3ecdc" fill-opacity="0.4"/>' +
+                '</pattern>' +
+              '</defs>' +
+              // 星爆
+              '<g>' +
+                Array.from({ length: 24 }, (_, i) => {
+                  const a = (Math.PI * 2 * i) / 24;
+                  const x1 = 100 + Math.cos(a) * 30;
+                  const y1 = 100 + Math.sin(a) * 30;
+                  const x2 = 100 + Math.cos(a + 0.13) * 95;
+                  const y2 = 100 + Math.sin(a + 0.13) * 95;
+                  return '<polygon points="100,100 ' + x1 + ',' + y1 + ' ' + x2 + ',' + y2 + '" fill="%23e8526f"/>';
+                }).join('') +
+              '</g>' +
+              '<circle cx="100" cy="100" r="60" fill="%23161821"/>' +
+              '<circle cx="100" cy="100" r="60" fill="url(%23halftone-stamp)"/>' +
+              '<circle cx="100" cy="100" r="60" fill="none" stroke="%23f3ecdc" stroke-width="2"/>' +
+            '</svg>' +
+            '<div class="stamp-center">' +
+              '<div class="stamp-text">TOP<br>3</div>' +
+              '<div class="stamp-sub">classroom</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="hero-bottom">' +
+        '<span><b>Est.</b> 2026 · Spring Edition</span>' +
+        '<span>Don\'t be so hard on yourself.</span>' +
+      '</div>' +
+    '</section>';
+  }
+
+  function renderStudent() {
+    const app = $('#app');
+    if (!state.items.length) {
+      app.innerHTML = renderWaiting();
+      return;
+    }
+    const voted = new Set(getVoted());
+    const canVote = state.status === 'open';
+
+    const cards = state.items.map((name) => {
+      const safe = escapeHtml(name);
+      const has = voted.has(name);
+      const count = state.votes[name] || 0;
+      const btn = has
+        ? ''
+        : '<button class="vote-btn" data-item="' + safe + '"' + (canVote ? '' : ' disabled') + '>' +
+            (canVote ? 'VOTE →' : 'CLOSED') + '</button>';
+      return (
+        '<div class="vote-card ' + (has ? 'voted' : '') + '" data-item="' + safe + '">' +
+          '<div class="vote-card-name">' + safe + '</div>' +
+          '<div>' +
+            '<div class="vote-card-count" data-count="' + safe + '">' + count + '</div>' +
+            '<div class="vote-card-count-label">votes</div>' +
+          '</div>' +
+          btn +
+        '</div>'
+      );
+    }).join('');
+
+    const pod = podiumHtml();
+    const allZero = state.items.every(n => !(state.votes[n] || 0));
+
+    app.innerHTML =
+      (pod ? '<section class="section">' +
+        '<div class="section-head">' +
+          '<div>' +
+            '<div class="eyebrow" style="margin-bottom:12px">THE PODIUM</div>' +
+            '<h2 class="section-title">目前 <span class="pink">领跑者</span></h2>' +
+          '</div>' +
+          '<div class="section-meta">live sync<br><b>' + totalVotes() + '</b> 票</div>' +
+        '</div>' +
+        pod +
+      '</section>' : '') +
+      '<section class="section">' +
+        '<div class="section-head">' +
+          '<div>' +
+            '<div class="eyebrow" style="margin-bottom:12px">PICK YOUR FAVE</div>' +
+            '<h2 class="section-title">投给 <span class="blue">你支持的作品</span></h2>' +
+          '</div>' +
+          '<div class="section-meta"><b>' + state.items.length + '</b> 个作品</div>' +
+        '</div>' +
+        (canVote ? '' : '<div class="hint" style="margin-bottom:14px; padding:12px 16px; background:var(--paper); border:1px dashed var(--ink);">⚠️ 投票尚未开放或已结束</div>') +
+        '<div class="vote-grid stagger">' + cards + '</div>' +
+      '</section>' +
+      '<section class="section">' +
+        '<div class="section-head">' +
+          '<div>' +
+            '<div class="eyebrow" style="margin-bottom:12px">LIVE RANKING</div>' +
+            '<h2 class="section-title">实时 <span class="pink">排行</span></h2>' +
+          '</div>' +
+          '<div class="section-meta"><b>' + totalVotes() + '</b> 总票</div>' +
+        '</div>' +
+        (allZero ? '<div class="hint" style="text-align:center; padding:40px; font-size:18px;">还没人投票，做第一个 ✦</div>' : rankingHtml()) +
+      '</section>';
+
+    app.querySelectorAll('.vote-card').forEach((card) => {
+      if (card.classList.contains('voted')) return;
+      card.addEventListener('click', (e) => {
+        const name = card.dataset.item;
+        const rect = card.getBoundingClientRect();
+        burstAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        onVote(name, card);
+      });
+    });
+  }
+
+  function onVote(item, card) {
+    if (state.status !== 'open') { toast('投票未开放'); return; }
+    state.votes[item] = (state.votes[item] || 0) + 1;
+    saveState(state);
+    markVoted(item);
+    toast('已投票 · thanks ✦');
+    updateTotal();
+    card.classList.add('voted');
+    const btn = card.querySelector('.vote-btn');
+    if (btn) btn.remove();
+    const countEl = card.querySelector('[data-count]');
+    if (countEl) {
+      countEl.textContent = state.votes[item];
+      countEl.classList.add('bump');
+      setTimeout(() => countEl.classList.remove('bump'), 350);
+    }
+    rerank();
+  }
+
+  function rerank() {
+    const rankingEl = document.querySelector('.section:last-child .rank-list');
+    if (rankingEl) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = rankingHtml();
+      rankingEl.replaceWith(tmp.firstElementChild);
+    }
+    const podEl = document.querySelector('.podium');
+    const newPod = podiumHtml();
+    if (podEl && !newPod) podEl.parentElement.remove();
+    else if (!podEl && newPod) render();
+    else if (newPod) podEl.outerHTML = newPod;
+  }
+
+  function renderAdmin() {
+    const app = $('#app');
+    if (!adminPwd || adminPwd !== correctPwd) {
+      app.innerHTML =
+        '<section class="hero">' +
+          '<div class="hero-grid" style="grid-template-columns:1fr">' +
+            '<div class="hero-left">' +
+              '<div class="eyebrow">— 拒绝访问 —</div>' +
+              '<div class="hero-display">' +
+                '<div class="line l1 pink">WRONG</div>' +
+                '<div class="line l2">PASSWORD.</div>' +
+                '<div class="line l3"><span class="italic">try again?</span></div>' +
+              '</div>' +
+              '<a class="hero-cta" href="' + location.pathname + '">← 返回学生端</a>' +
+            '</div>' +
+          '</div>' +
+        '</section>';
+      return;
+    }
+    const itemsText = state.items.join('\n');
+    const statusPill = state.status === 'open'
+      ? '<div class="status-pill open"><span class="dot"></span>ON AIR</div>'
+      : '<div class="status-pill closed"><span class="dot"></span>OFFLINE</div>';
+
+    app.innerHTML =
+      '<section class="section">' +
+        '<div class="section-head">' +
+          '<div>' +
+            '<div class="eyebrow" style="margin-bottom:12px">CONTROL ROOM</div>' +
+            '<h2 class="section-title">管理 <span class="blue">控制台</span></h2>' +
+          '</div>' +
+          statusPill +
+        '</div>' +
+        '<div class="admin-grid">' +
+          '<div class="panel">' +
+            '<div class="panel-head">' +
+              '<div class="panel-title">作品名单</div>' +
+              '<div class="panel-tag">— roster</div>' +
+            '</div>' +
+            '<textarea id="itemsInput" placeholder="每行一个作品名&#10;&#10;张三 · 课堂作品A&#10;李四 · 课堂作品B&#10;王五 · 课堂作品C">' +
+              escapeHtml(itemsText) + '</textarea>' +
+            '<div class="hint">每行一个；导入后清空所有票数并开启新一场。最多 200 个。</div>' +
+            '<div class="btn-row">' +
+              '<button class="btn btn-primary" id="btnImport">📥 导入</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="panel">' +
+            '<div class="panel-head">' +
+              '<div class="panel-title">投票控制</div>' +
+              '<div class="panel-tag">— console</div>' +
+            '</div>' +
+            '<div class="btn-row">' +
+              '<button class="btn btn-success" id="btnOpen"' + (state.status === 'open' ? ' disabled' : '') + '>▶ 开始</button>' +
+              '<button class="btn btn-warn" id="btnClose"' + (state.status === 'closed' ? ' disabled' : '') + '>⏸ 结束</button>' +
+              '<button class="btn btn-danger" id="btnReset">🗑 重置票数</button>' +
+              '<button class="btn" id="btnExport">📤 导出 CSV</button>' +
+              '<button class="btn" id="btnCopyLink">🔗 复制链接</button>' +
+            '</div>' +
+            '<div class="kv" id="voteStatusHint">' +
+              '<span>状态</span><b>' + (state.status === 'open' ? 'ON AIR' : 'OFFLINE') + '</b>' +
+              '<span class="kv-sep">·</span>' +
+              '<span>总票</span><b>' + totalVotes() + '</b>' +
+              '<span class="kv-sep">·</span>' +
+              '<span>作品</span><b>' + state.items.length + '</b>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+      '<section class="section">' +
+        '<div class="section-head">' +
+          '<div>' +
+            '<div class="eyebrow" style="margin-bottom:12px">LIVE RANKING</div>' +
+            '<h2 class="section-title">实时 <span class="pink">排行</span></h2>' +
+          '</div>' +
+          '<div class="section-meta"><b>' + totalVotes() + '</b> 总票</div>' +
+        '</div>' +
+        (state.items.length ? '<div style="border:2px solid var(--ink)">' + rankingHtml() + '</div>' : '<div class="hint" style="text-align:center; padding:40px; font-size:18px;">还没导入作品名单</div>') +
+      '</section>';
+
+    $('#btnImport').addEventListener('click', onImport);
+    $('#btnOpen').addEventListener('click', () => onStatus('open'));
+    $('#btnClose').addEventListener('click', () => onStatus('closed'));
+    $('#btnReset').addEventListener('click', onReset);
+    $('#btnExport').addEventListener('click', onExport);
+    $('#btnCopyLink').addEventListener('click', onCopyLink);
+  }
+
+  function onImport() {
+    const raw = $('#itemsInput').value || '';
+    const items = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (!items.length) { toast('请先填写作品名'); return; }
+    if (items.length > 200) { toast('最多 200 个'); return; }
+    if (!confirm('确定导入 ' + items.length + ' 个作品？这会清空所有票数。')) return;
+    const seen = new Set();
+    const unique = [];
+    for (const it of items) {
+      if (seen.has(it)) continue;
+      seen.add(it);
+      unique.push(it);
+    }
+    state.items = unique;
+    state.votes = Object.fromEntries(unique.map(i => [i, 0]));
+    state.session = String(Date.now());
+    state.status = 'open';
+    saveState(state);
+    toast('已导入 ' + unique.length + ' 个 ✦');
+    renderAdmin();
+  }
+
+  function onStatus(status) {
+    state.status = status;
+    saveState(state);
+    toast(status === 'open' ? '已开启投票' : '已关闭投票');
+    renderAdmin();
+  }
+
+  function onReset() {
+    if (!confirm('确定重置所有票数？名单保留。')) return;
+    state.votes = Object.fromEntries(state.items.map(i => [i, 0]));
+    saveState(state);
+    toast('票数已重置');
+    renderAdmin();
+  }
+
+  function onExport() {
+    if (!state.items.length) { toast('暂无数据'); return; }
+    const rows = state.items
+      .map(name => ({ name, votes: state.votes[name] || 0 }))
+      .sort((a, b) => b.votes - a.votes || a.name.localeCompare(b.name));
+    let csv = '﻿排名,作品,票数\n';
+    rows.forEach((r, i) => {
+      const safe = '"' + String(r.name).replace(/"/g, '""') + '"';
+      csv += (i + 1) + ',' + safe + ',' + r.votes + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    a.href = url;
+    a.download = '投票结果-' + ts + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('已导出 CSV');
+  }
+
+  function onCopyLink() {
+    const link = location.origin + location.pathname;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).then(
+        () => toast('已复制：' + link),
+        () => fallbackCopy(link)
+      );
+    } else { fallbackCopy(link); }
+  }
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('已复制：' + text); }
+    catch { toast('复制失败'); }
+    document.body.removeChild(ta);
+  }
+
+  function render() {
+    if (isAdmin) renderAdmin(); else renderStudent();
+    updateTotal();
+  }
+
+  if (isAdmin) {
+    document.title = '【管理】课堂作品投票';
+    const bt = document.querySelector('.brand-title');
+    if (bt) bt.innerHTML = '管理<br><span class="small">control</span> <span class="pink">Room.</span>';
+  }
+  render();
+})();
+</script>
+</body>
+</html>
